@@ -12,9 +12,9 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 🌐 ฟังก์ชันสำหรับดึงภาพโลโก้บริษัทอย่างปลอดภัย
+# 🌐 ฟังก์ชันสำหรับดึงภาพโลโก้บริษัทอย่างปลอดภัยบนระบบ Cloud
 def get_company_logo():
-    base_dir = "C:/nuosai-pump-selector/images/"
+    base_dir = "images/"
     logo_names = ["logo.png", "logo.jpg", "logo.jpeg", "LOGO.PNG", "LOGO.JPG"]
     if os.path.exists(base_dir):
         for name in logo_names:
@@ -23,7 +23,6 @@ def get_company_logo():
                 return full_path
     return None
 
-# ประกาศตัวแปรโลโก้ให้ถูกต้อง ป้องกันหน้าจอขาว
 logo_path = get_company_logo()
 
 # 2. คลังข้อมูลภาษาสำหรับการแปลระบบ (สลับ TH/EN สมบูรณ์แบบ)
@@ -77,8 +76,8 @@ translation = {
         "temp_extreme_alert": "❌ ของเหลวร้อนเกินขีดจำกัดความปลอดภัยของโครงสร้างปั๊มรุ่นมาตรฐานทั่วไป",
         
         "tab_pic": "📐 ขนาดและมิติตัวปั๊ม (Dimension Sheet)",
-        "tab_curve_catalog": "📉 กราฟจากแคตตาล็อกโรงงาน (Performance Curve)",
-        "img_not_found": "ℹ️ ไม่พบไฟล์ภาพในโฟลเดอร์ คาดว่าชื่อไฟล์ในระบบไม่ตรงกับชื่อรุ่น",
+        "tab_curve_catalog": "📉 กราฟจากแคตตาล็อกโรงงาน (Factory Performance Curve)",
+        "img_not_found": "ℹ️ ไม่พบไฟล์ภาพในโฟลเดอร์ คาดว่าระบบกำลังซิงค์ไฟล์หรือยังไม่มีการอัปโหลดไฟล์มิติของรุ่นนี้",
         
         "btn_submit": "🚀 คำนวณสเปกและค้นหารุ่นปั๊มน้ำ",
         "btn_back": "⬅️ ย้อนกลับไปแก้ไขข้อมูลสเปก"
@@ -133,7 +132,7 @@ translation = {
         
         "tab_pic": "📐 Product Dimensions & Specs",
         "tab_curve_catalog": "📉 Factory Performance Curve",
-        "img_not_found": "ℹ️ Image file not found inside images folder.",
+        "img_not_found": "ℹ️ Dimension sheet image file not found inside images folder.",
         
         "btn_submit": "🚀 Run Calculation & Match Products",
         "btn_back": "⬅️ Back to Modify Inputs"
@@ -149,66 +148,71 @@ t = translation[lang]
 if "current_page" not in st.session_state:
     st.session_state["current_page"] = "input_page"
 
-# 4. ฐานข้อมูลคลังปั๊ม Nuosai
+# 4. ฐานข้อมูลคลังปั๊ม Nuosai ปรับแต่งฐานข้อมูลให้ตรงกับรายชื่อรูปจริงของน้า
 nuosai_pumps = [
+    # ซีรีส์ PMPA / PMP (ชุด Booster Set / Transfer รุ่นหลักของคุณน้า)
     {"Series": "PMPA", "Model_Code": "100PMPA64-1", "Img_Key": "100PMPA64-1", "PumpKey": "booster_set", "Motor_HP": 5.5, "Min_Flow": 30.0, "Max_Flow": 85.0, "Min_Head": 10.0, "Max_Head": 30.0},
     {"Series": "PMPA", "Model_Code": "100PMPA64-2", "Img_Key": "100PMPA64-2", "PumpKey": "booster_set", "Motor_HP": 10.0, "Min_Flow": 30.0, "Max_Flow": 85.0, "Min_Head": 25.0, "Max_Head": 58.0},
     {"Series": "PMPA", "Model_Code": "100PMPA64-3", "Img_Key": "100PMPA64-3", "PumpKey": "booster_set", "Motor_HP": 15.0, "Min_Flow": 30.0, "Max_Flow": 85.0, "Min_Head": 40.0, "Max_Head": 88.0},
     {"Series": "PMPA", "Model_Code": "100PMPA64-4", "Img_Key": "100PMPA64-4", "PumpKey": "booster_set", "Motor_HP": 20.0, "Min_Flow": 30.0, "Max_Flow": 85.0, "Min_Head": 60.0, "Max_Head": 118.0},
     {"Series": "PMPA", "Model_Code": "100PMPA90-2", "Img_Key": "100PMPA90-2", "PumpKey": "booster_set", "Motor_HP": 25.0, "Min_Flow": 50.0, "Max_Flow": 120.0, "Min_Head": 30.0, "Max_Head": 70.0},
     {"Series": "PMPA", "Model_Code": "125PMPA120-3", "Img_Key": "125PMPA120-3", "PumpKey": "booster_set", "Motor_HP": 40.0, "Min_Flow": 60.0, "Max_Flow": 160.0, "Min_Head": 45.0, "Max_Head": 95.0},
-    {"Series": "PWPC", "Model_Code": "PWPC2-4", "Img_Key": "PWPC2-4", "PumpKey": "transfer_pump", "Motor_HP": 1.0, "Min_Flow": 0.5, "Max_Flow": 4.0, "Min_Head": 10.0, "Max_Head": 32.0},
-    {"Series": "PWPC", "Model_Code": "PWPC4-3", "Img_Key": "PWPC4-3", "PumpKey": "transfer_pump", "Motor_HP": 1.5, "Min_Flow": 1.0, "Max_Flow": 6.5, "Min_Head": 12.0, "Max_Head": 38.0},
-    {"Series": "PWPC", "Model_Code": "PWPC8-3", "Img_Key": "PWPC8-3", "PumpKey": "transfer_pump", "Motor_HP": 2.0, "Min_Flow": 2.0, "Max_Flow": 11.5, "Min_Head": 15.0, "Max_Head": 42.0},
-    {"Series": "PWPC", "Model_Code": "PWPC12-3", "Img_Key": "PWPC12-3", "PumpKey": "transfer_pump", "Motor_HP": 3.0, "Min_Flow": 4.0, "Max_Flow": 17.0, "Min_Head": 15.0, "Max_Head": 46.0},
-    {"Series": "NSLA", "Model_Code": "NSLA32-25-2", "Img_Key": "NSLA32-25-2", "PumpKey": "industrial_pump", "Motor_HP": 3.0, "Min_Flow": 3.0, "Max_Flow": 16.0, "Min_Head": 12.0, "Max_Head": 32.0},
+    
+    # ซีรีส์ NSLA (ปั๊มหอยโข่งอุตสาหกรรมชลประทาน)
+    {"Series": "NSLA", "Model_Code": "NSLA32-25-2", "Img_Key": "NSLA32-25-2", "PumpKey": "industrial_pump", "Motor_HP": 3.0, "Min_Flow": 3.0, "Max_Flow": 16.0, "Min_Head": 10.0, "Max_Head": 32.0},
     {"Series": "NSLA", "Model_Code": "NSLA40-25-2", "Img_Key": "NSLA40-25-2", "PumpKey": "industrial_pump", "Motor_HP": 5.5, "Min_Flow": 5.0, "Max_Flow": 28.0, "Min_Head": 15.0, "Max_Head": 40.0},
     {"Series": "NSLA", "Model_Code": "NSLA50-32-2", "Img_Key": "NSLA50-32-2", "PumpKey": "industrial_pump", "Motor_HP": 7.5, "Min_Flow": 10.0, "Max_Flow": 50.0, "Min_Head": 15.0, "Max_Head": 48.0},
     {"Series": "NSLA", "Model_Code": "NSLA65-40-2", "Img_Key": "NSLA65-40-2", "PumpKey": "industrial_pump", "Motor_HP": 15.0, "Min_Flow": 15.0, "Max_Flow": 75.0, "Min_Head": 20.0, "Max_Head": 58.0},
     {"Series": "NSLA", "Model_Code": "NSLA80-40-2", "Img_Key": "NSLA80-40-2", "PumpKey": "industrial_pump", "Motor_HP": 25.0, "Min_Flow": 20.0, "Max_Flow": 120.0, "Min_Head": 20.0, "Max_Head": 52.0},
-    {"Series": "NSWA", "Model_Code": "NSWA40-25-2", "Img_Key": "NSWA40-25-2", "PumpKey": "industrial_pump", "Motor_HP": 5.5, "Min_Flow": 5.0, "Max_Flow": 28.0, "Min_Head": 15.0, "Max_Head": 42.0},
-    {"Series": "NSWA", "Model_Code": "NSWA50-32-2", "Img_Key": "NSWA50-32-2", "PumpKey": "industrial_pump", "Motor_HP": 7.5, "Min_Flow": 10.0, "Max_Flow": 52.0, "Min_Head": 18.0, "Max_Head": 52.0},
-    {"Series": "NSWA", "Model_Code": "NSWA65-40-2", "Img_Key": "NSWA65-40-2", "PumpKey": "industrial_pump", "Motor_HP": 15.0, "Min_Flow": 15.0, "Max_Flow": 80.0, "Min_Head": 22.0, "Max_Head": 62.0},
-    {"Series": "NSQW", "Model_Code": "50NSQW15-15-1.5", "Img_Key": "50NSQW15-15-1.5", "PumpKey": "submersible", "Motor_HP": 2.0, "Min_Flow": 5.0, "Max_Flow": 22.0, "Min_Head": 5.0, "Max_Head": 18.0},
+    
+    # ซีรีส์ NSWA (ปั๊มน้ำเสียอุตสาหกรรมหมุนเวียน)
+    {"Series": "NSWA", "Model_Code": "NSWA100-15-2", "Img_Key": "NSWA100-15-2", "PumpKey": "industrial_pump", "Motor_HP": 10.0, "Min_Flow": 40.0, "Max_Flow": 140.0, "Min_Head": 8.0, "Max_Head": 22.0},
+    {"Series": "NSWA", "Model_Code": "NSWA125-28-4", "Img_Key": "NSWA125-28-4", "PumpKey": "industrial_pump", "Motor_HP": 20.0, "Min_Flow": 50.0, "Max_Flow": 180.0, "Min_Head": 15.0, "Max_Head": 35.0},
+    
+    # ซีรีส์ NSQW (ปั๊มจุ่ม Submersible Sewage ยอดนิยมของคุณน้า)
+    {"Series": "NSQW", "Model_Code": "50NSQW15-15-1.5", "Img_Key": "50NSQW15-15-1.5", "PumpKey": "submersible", "Motor_HP": 2.0, "Min_Flow": 5.0, "Max_Flow": 25.0, "Min_Head": 5.0, "Max_Head": 18.0},
     {"Series": "NSQW", "Model_Code": "50NSQW25-28-4", "Img_Key": "50NSQW25-28-4", "PumpKey": "submersible", "Motor_HP": 5.5, "Min_Flow": 10.0, "Max_Flow": 35.0, "Min_Head": 12.0, "Max_Head": 32.0},
-    {"Series": "NSQW", "Model_Code": "65NSQW25-28-4", "Img_Key": "65NSQW25-28-4", "PumpKey": "submersible", "Motor_HP": 5.5, "Min_Flow": 12.0, "Max_Flow": 40.0, "Min_Head": 10.0, "Max_Head": 30.0},
-    {"Series": "NSQW", "Model_Code": "100NSQW40-15-4", "Img_Key": "100NSQW40-15-4", "PumpKey": "submersible", "Motor_HP": 5.5, "Min_Flow": 15.0, "Max_Flow": 65.0, "Min_Head": 8.0, "Max_Head": 18.0},
+    {"Series": "NSQW", "Model_Code": "65NSQW25-28-4", "Img_Key": "65NSQW25-28-4", "PumpKey": "submersible", "Motor_HP": 5.5, "Min_Flow": 12.0, "Max_Flow": 42.0, "Min_Head": 10.0, "Max_Head": 30.0},
+    {"Series": "NSQW", "Model_Code": "100NSQW40-15-4", "Img_Key": "100NSQW40-15-4", "PumpKey": "submersible", "Motor_HP": 5.5, "Min_Flow": 15.0, "Max_Flow": 65.0, "Min_Head": 6.0, "Max_Head": 18.0},
     {"Series": "NSQW", "Model_Code": "100NSQW50-17-5.5", "Img_Key": "100NSQW50-17-5.5", "PumpKey": "submersible", "Motor_HP": 7.5, "Min_Flow": 20.0, "Max_Flow": 75.0, "Min_Head": 10.0, "Max_Head": 22.0},
-    {"Series": "NSQW", "Model_Code": "150NSQW140-23-15", "Img_Key": "150NSQW140-23-15", "PumpKey": "submersible", "Motor_HP": 20.0, "Min_Flow": 50.0, "Max_Flow": 200.0, "Min_Head": 12.0, "Max_Head": 28.0}
+    {"Series": "NSQW", "Model_Code": "150NSQW140-23-15", "Img_Key": "150NSQW140-23-15", "PumpKey": "submersible", "Motor_HP": 20.0, "Min_Flow": 50.0, "Max_Flow": 220.0, "Min_Head": 10.0, "Max_Head": 28.0}
 ]
 df_db = pd.DataFrame(nuosai_pumps)
 
-# 🌐 ฟังก์ชันค้นหารูปภาพตรงรุ่น
+# 🌐 ฟังก์ชันค้นหารูปภาพอัจฉริยะ (แก้ปัญหาเรื่องเว้นวรรค คำผิด Curev หรือตัวพิมพ์เล็กใหญ่ทั้งหมด)
 def find_exact_image(prefix, code_key):
-    base_dir = "C:/nuosai-pump-selector/images/"
+    base_dir = "images/"
     if not os.path.exists(base_dir):
         return None
-    extensions = [".jpg", ".jpeg", ".png", ".JPG", ".JPEG", ".PNG"]
-    prefixes = [prefix, "Curev"] if prefix == "Curve" else [prefix]
-    search_token = f"{prefix.lower()}_{code_key.lower()}".replace(" ", "").replace("-", "")
-    alt_token = f"curev_{code_key.lower()}".replace(" ", "").replace("-", "")
+        
+    # ล้างอักขระพิเศษเพื่อทำ Token สำหรับจับคู่แบบยืดหยุ่นสูง
+    clean_code = code_key.lower().replace(" ", "").replace("-", "")
+    
+    # วนลูปอ่านไฟล์จริงในโฟลเดอร์เพื่อตรวจสอบแบบไร้ช่องโหว่
     for f in os.listdir(base_dir):
         f_clean = f.lower().replace(" ", "").replace("-", "")
-        if search_token in f_clean or alt_token in f_clean:
-            return os.path.join(base_dir, f)
-    for pref in prefixes:
-        for ext in extensions:
-            full_path = os.path.join(base_dir, f"{pref}_{code_key}{ext}")
-            if os.path.exists(full_path):
-                return full_path
+        
+        # ค้นหาภาพประเภทกราฟประสิทธิภาพ (Performance Curve)
+        if prefix == "Curve":
+            if ("curve" in f_clean or "curev" in f_clean) and clean_code in f_clean:
+                return os.path.join(base_dir, f)
+                
+        # ค้นหาภาพประเภทไดเมนชั่นสเปก (Dimension Sheet)
+        elif prefix == "Dimension":
+            if "dimension" in f_clean and clean_code in f_clean:
+                return os.path.join(base_dir, f)
+                
     return None
 
 def get_pump_type_name(key, current_lang):
     types_dict = {
         "TH": {
-            "booster": "ปั๊มน้ำอัตโนมัติเพิ่มแรงดัน (Automatic Booster Pump)",
             "booster_set": "ชุดปั๊มเสริมแรงดันประสิทธิภาพสูง (High-Performance Booster Pump Set)",
             "transfer_pump": "ปั๊มสูบส่งหมุนเวียนน้ำอาคารและอุตสาหกรรม (Water Supply & Transfer Pump)",
             "industrial_pump": "ปั๊มหอยโข่งโครงสร้างเหล็กและสแตนเลสงานหนัก (Heavy-Duty Centrifugal Pump)",
             "submersible": "ปั๊มจุ่มระบายน้ำเสียและสิ่งปฏิกูล (Submersible Sewage Pump)"
         },
         "EN": {
-            "booster": "Automatic Pressure Booster Pump",
             "booster_set": "High-Performance Booster Pump Set System",
             "transfer_pump": "Water Supply & Transfer Circulation Pump",
             "industrial_pump": "Heavy-Duty End-Suction Centrifugal Pump",
@@ -412,7 +416,7 @@ elif st.session_state["current_page"] == "output_page":
                         except Exception as e:
                             st.error(f"Error loading sheet: {str(e)}")
                     else:
-                        st.info(f"{t['img_not_found']} (มองหาไฟล์: `Dimension_{chosen_pump['Img_Key']}.jpg`) ")
+                        st.info(t['img_not_found'])
                         
                 with tab2:
                     curve_catalog_path = find_exact_image("Curve", chosen_pump['Img_Key'])
@@ -422,6 +426,6 @@ elif st.session_state["current_page"] == "output_page":
                         except Exception as e:
                             st.error(f"Error loading curve: {str(e)}")
                     else:
-                        st.info(f"{t['img_not_found']} (มองหาไฟล์: `Curve_{chosen_pump['Img_Key']}.jpg`)")
+                        st.info(t['img_not_found'])
         else:
             st.error(t["error_msg"])
