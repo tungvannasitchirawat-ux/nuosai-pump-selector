@@ -25,12 +25,12 @@ def get_company_logo():
 
 logo_path = get_company_logo()
 
-# 2. คลังข้อมูลภาษาสำหรับการแปลระบบ (สลับ TH/EN สมบูรณ์แบบ)
+# 2. คลังข้อมูลภาษาสำหรับการแปลระบบ (สลับ TH/EN สมบูรณ์แบบ แก้ไขตัวแปรหน่วยเมตรแล้ว)
 translation = {
     "TH": {
         "brand_title": "NUOSAI PUMP SELECTION SYSTEM",
         "brand_sub": "ระบบคำนวณทางวิศวกรรมชลศาสตร์และค้นหาภาพกราฟแคตตาล็อกผลิตภัณฑ์ Nuosai",
-        "sidebar_title": "🎛️ แผงควบคุม (Control Panel)",
+        "sidebar_title": "⚙️ การตั้งค่าระบบ / Settings",
         "lang_select": "🌐 เลือกภาษา (Language)",
         "sec_input": "📥 1. กรอกข้อมูลการออกแบบหน้างาน (Inputs)",
         "cat_select": "ประเภทกลุ่มงานที่ต้องการใช้งาน",
@@ -69,10 +69,11 @@ translation = {
         
         "sec_match": "🎯 ผลลัพธ์ปั๊มน้ำรุ่นที่ผ่านเกณฑ์คำนวณ",
         "select_pump_label": "🔍 เลือกรุ่นปั๊มน้ำจากผลลัพธ์การคำนวณ:",
-        "matches_count": "พบรุ่นผลิตภัณฑ์ที่รองรับสเปกหน้างานทั้งหมด {count} รุ่น",
+        "matches_count": "พบรุ่นผลิตภัณฑ์ที่รองรับสเปกหน้างานของคุณทั้งหมด {count} รุ่น",
         "error_msg": "⚠️ ไม่พบรุ่นปั๊มที่ตรงสเปกในช่วงคำนวณนี้ คุณน้าสามารถใช้ระบบ 'ค้นหารุ่นตรงโดยตรง' ที่แถบซ้ายมือเพื่อดึงรูปกราฟมาดูได้ทันทีครับ",
         "temp_extreme_alert": "❌ ของเหลวร้อนเกินขีดจำกัดความปลอดภัยของโครงสร้างปั๊มรุ่นมาตรฐาน",
         
+        "meter": "เมตร",
         "curve_title": "📉 Factory Performance Curve (กราฟแสดงประสิทธิภาพจากโรงงาน)",
         "img_not_found": "ℹ️ ไม่พบไฟล์ภาพกราฟของรุ่นนี้ คาดว่าชื่อไฟล์บน GitHub สะกดไม่ตรงกับรหัสรุ่นในระบบ",
         "btn_submit": "🚀 คำนวณสเปกและค้นหารุ่นปั๊มน้ำ",
@@ -125,6 +126,7 @@ translation = {
         "error_msg": "⚠️ No matching models found. You can use the 'Manual Model Lookup' on the left sidebar to pull images directly.",
         "temp_extreme_alert": "❌ Liquid Temp exceeds safe operational limits.",
         
+        "meter": "m",
         "curve_title": "📉 Factory Performance Curve",
         "img_not_found": "ℹ️ Performance curve image file not found inside images folder.",
         "btn_submit": "🚀 Run Calculation & Match Products",
@@ -142,8 +144,6 @@ t = translation[lang]
 # บังคับระบบเก็บสเตตหน้าเว็บ
 if "current_page" not in st.session_state:
     st.session_state["current_page"] = "input_page"
-if "manual_model" not in st.session_state:
-    st.session_state["manual_model"] = "เลือกโหมดคำนวณอัตโนมัติ"
 
 # 4. ฟังก์ชันค้นหารูปภาพอัจฉริยะ (ดักจับตัวพิมพ์เล็กลูกเล่นสะกดคำผิดทั้งหมดของคุณน้า)
 def find_exact_image(code_key):
